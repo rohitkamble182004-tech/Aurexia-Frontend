@@ -4,12 +4,13 @@ import { fetchDrop } from "@/lib/api/storefront";
 export default async function DropPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  // ✅ unwrap params (App Router requirement)
+  const { slug } = await params;
 
+  // ✅ fetch drop WITH products
   const drop = await fetchDrop(slug);
-
   if (!drop) {
     notFound();
   }
@@ -27,9 +28,10 @@ export default async function DropPage({
           {drop.products.map((p) => (
             <a
               key={p.id}
-              href={`/products/${p.slug}`}
+              href={`/products/${p.slug}`} // ✅ fixed route
               className="block space-y-2 group"
             >
+              {/* IMAGE */}
               <div className="relative w-full aspect-[4/5] overflow-hidden bg-neutral-100 rounded-lg">
                 <img
                   src={p.imageUrl ?? "/placeholder.png"}
@@ -39,6 +41,7 @@ export default async function DropPage({
                 />
               </div>
 
+              {/* TEXT */}
               <p className="text-sm font-medium">{p.name}</p>
               <p className="text-sm text-neutral-500">
                 ${p.price}
